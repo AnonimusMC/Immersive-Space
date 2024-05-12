@@ -1,0 +1,19 @@
+{
+  "sources": [
+    {
+      "type": "directory",
+      "source": "planet",
+      "prefix": "planet/"
+    },
+    {
+      "type": "directory",
+      "source": "star",
+      "prefix": "star/"
+    },
+    {
+      "type": "directory",
+      "source": "satellite",
+      "prefix": "satellite/"
+    }
+  ]
+}

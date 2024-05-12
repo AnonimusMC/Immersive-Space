@@ -1,0 +1,6 @@
+{
+	"parent": "immersive_space:satellite/satellite",
+	"textures": {
+		"1": "immersive_space:satellite/moon"
+	}
+}

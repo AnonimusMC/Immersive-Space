@@ -1,0 +1,22 @@
+{
+  "has_raids": false,
+  "monster_spawn_block_light_limit": 15,
+  "monster_spawn_light_level": 15,
+  "height": 256,
+  "min_y": 0,
+  "noodle_caves_enabled": false,
+  "logical_height": 256,
+  "infiniburn": "#minecraft:infiniburn_nether",
+  "ambient_light": 1,
+  "piglin_safe": false,
+  "bed_works": false,
+  "respawn_anchor_works": false,
+  "ultrawarm": false,
+  "natural": false,
+  "shrunk": false,
+  "fixed_time": 6000,
+  "coordinate_scale": 1.0,
+  "effects": "immersive_space:space",
+  "has_skylight": false,
+  "has_ceiling": false
+}

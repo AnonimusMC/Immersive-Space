@@ -1,0 +1,6 @@
+{
+	"parent": "immersive_space:star/star",
+	"textures": {
+		"1": "immersive_space:star/sun"
+	}
+}

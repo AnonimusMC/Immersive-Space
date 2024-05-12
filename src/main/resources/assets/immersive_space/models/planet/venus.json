@@ -1,0 +1,6 @@
+{
+	"parent": "immersive_space:planet/planet",
+	"textures": {
+		"1": "immersive_space:planet/venus"
+	}
+}

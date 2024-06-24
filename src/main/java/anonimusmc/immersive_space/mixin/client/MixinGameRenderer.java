@@ -17,6 +17,6 @@ public class MixinGameRenderer {
     @Inject(method = "getRenderDistance", at = @At(value = "HEAD"), cancellable = true)
     public void onGetRenderDistance(CallbackInfoReturnable<Float> ci){
         if(Minecraft.getInstance().level.dimension() == ImmersiveSpace.SPACE)
-            ci.setReturnValue(2000F);
+            ci.setReturnValue(1000F);
     }
 }

@@ -4,10 +4,14 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "immersive_space.refmap.json",
   "mixins": [
+    "EntityMixin",
+    "ad_astra.LanderMixin",
+    "ad_astra.RocketMixin"
   ],
   "client":[
     "client.MixinGameRenderer",
-    "client.MixinOptions"
+    "client.MixinOptions",
+    "ad_astra.RocketRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,0 +1,6 @@
+{
+	"parent": "immersive_space:asteroid/asteroid1",
+	"textures": {
+		"0": "immersive_space:asteroid/asteroid2"
+	}
+}

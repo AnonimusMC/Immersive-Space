@@ -1,5 +1,6 @@
 package anonimusmc.immersive_space.common.space;
 
+import anonimusmc.immersive_space.client.RenderUtils;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -39,7 +40,7 @@ public class Star extends CelestialBody {
         event.getPoseStack().scale((float) scale.x, (float) scale.y, (float) scale.z);
         BakedModel model = Minecraft.getInstance().getModelManager().getModel(modelLoc);
 
-        MultiBufferSource pBuffer = Minecraft.getInstance().renderBuffers().bufferSource();
+        MultiBufferSource pBuffer = RenderUtils.BUFFER;
         VertexConsumer vertexConsumer = pBuffer
                 .getBuffer(RenderType.entityTranslucent(InventoryMenu.BLOCK_ATLAS));
         for (BakedQuad quad : model.getQuads(null, null, RandomSource.create(), ModelData.EMPTY, null)) {

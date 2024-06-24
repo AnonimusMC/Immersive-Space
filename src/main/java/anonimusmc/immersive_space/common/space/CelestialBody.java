@@ -31,6 +31,8 @@ public abstract class CelestialBody {
 
     public CelestialBody(ResourceLocation registryName) {
         this.registryName = registryName;
+        coordinates = Vec3.ZERO;
+        coordinatesO = Vec3.ZERO;
     }
 
     @OnlyIn(Dist.CLIENT)

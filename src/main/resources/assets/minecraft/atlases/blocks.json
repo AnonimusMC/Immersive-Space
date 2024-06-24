@@ -14,6 +14,11 @@
       "type": "directory",
       "source": "satellite",
       "prefix": "satellite/"
+    },
+    {
+      "type": "directory",
+      "source": "asteroid",
+      "prefix": "asteroid/"
     }
   ]
 }

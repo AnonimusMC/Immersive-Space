@@ -14,6 +14,6 @@ public class MixinOptions {
     @Inject(method = "getEffectiveRenderDistance", at = @At("HEAD"), cancellable = true)
     public void onGetEffectiveRenderDistance(CallbackInfoReturnable<Integer> ci) {
         if (Minecraft.getInstance().level.dimension() == ImmersiveSpace.SPACE)
-            ci.setReturnValue(2000);
+            ci.setReturnValue(1000);
     }
 }

@@ -154,6 +154,10 @@ dependencies {
     runtimeOnly fg.deobf("curse.maven:oculus-581495:5108615")
     runtimeOnly fg.deobf("curse.maven:embeddium-908741:5308079")
 
+    implementation fg.deobf("foundry.veil:Veil-forge-${minecraft_version}:${veil_version}") {
+        exclude group: "maven.modrinth"
+    }
+
     // Example mod dependency with JEI - using fg.deobf() ensures the dependency is remapped to your development mappings
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}-common-api:${jei_version}")

@@ -1,9 +1,12 @@
 package anonimusmc.immersive_space.common.space;
 
-import anonimusmc.immersive_space.client.RenderUtils;
+import anonimusmc.immersive_space.ImmersiveSpace;
+import anonimusmc.immersive_space.client.ImmersiveSpaceRenderTypes;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import earth.terrarium.adastra.common.config.AdAstraConfig;
+import earth.terrarium.adastra.common.handlers.LaunchingDimensionHandler;
+import earth.terrarium.adastra.common.utils.ModUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -11,9 +14,16 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
@@ -21,31 +31,58 @@ import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.event.TickEvent;
 
 import java.util.Random;
+import java.util.function.Supplier;
 
-public class Satellite extends CelestialBody{
+public class Satellite extends CelestialBody implements ExitableBody {
 
     private Planet planet;
+    private Supplier<earth.terrarium.adastra.api.planets.Planet> adAstraPlanet;
     private ResourceLocation modelLoc;
     private Vec3 offset;
     private Vec3 scale;
     private float angle = new Random().nextInt(360);
     private float angularSpeed;
+    private AABB boundingBox;
+
+    public Satellite(ResourceLocation registryName, Planet planet, Vec3 offset, float angularSpeed, Vec3 scale, Supplier<earth.terrarium.adastra.api.planets.Planet> adAstraPlanet) {
+        this(registryName, planet, offset, angularSpeed, scale);
+        this.adAstraPlanet = adAstraPlanet;
+    }
+
+    private ResourceKey<Level> dim() {
+        return adAstraPlanet.get().orbitIfPresent();
+    }
 
     public Satellite(ResourceLocation registryName, Planet planet, Vec3 offset, float angularSpeed, Vec3 scale) {
         super(registryName);
         this.planet = planet;
         modelLoc = new ResourceLocation(registryName.getNamespace(), "satellite/" + registryName.getPath());
-        this.offset = offset;
-        this.coordinates = planet.getCoordinates().add(offset);
-        this.angularSpeed = angularSpeed;
-        this.scale = scale;
+        this.offset = offset.multiply(ImmersiveSpace.SPACE_SCALE, ImmersiveSpace.SPACE_SCALE, ImmersiveSpace.SPACE_SCALE);
+        this.coordinates = planet.getCoordinates().add(this.offset);
+        this.angularSpeed = (float) (angularSpeed / Math.pow(ImmersiveSpace.SPACE_SCALE, 2));
+        this.scale = scale.multiply(ImmersiveSpace.SPACE_SCALE, ImmersiveSpace.SPACE_SCALE, ImmersiveSpace.SPACE_SCALE);
+        this.boundingBox = new AABB(-this.scale.x / 2, -this.scale.y / 2, -this.scale.z / 2, this.scale.x / 2, this.scale.y / 2, this.scale.z / 2);
     }
+
     @Override
     public void tick(TickEvent.LevelTickEvent event) {
         super.tick(event);
         angle += 0.01F + this.angularSpeed;
         coordinatesO = coordinates;
         coordinates = planet.getCoordinates().add(offset.yRot((float) Math.toRadians(angle)));
+        if (!event.level.isClientSide && planet != null) {
+            event.level.getEntities((Entity) null, boundingBox.move(coordinates), entity -> true).forEach(entity -> {
+                if (!entity.isPassenger()) {
+                    if (entity.isVehicle())
+                        moveToSatellite((ServerPlayer) entity.getFirstPassenger());
+                }
+            });
+        }
+    }
+
+    public void moveToSatellite(ServerPlayer entity) {
+        ServerLevel level = ((ServerLevel) entity.level()).getServer().getLevel(dim());
+        ModUtils.land(entity, level, LaunchingDimensionHandler.getSpawningLocation(entity, level, adAstraPlanet.get()).orElse(GlobalPos.of(dim(), new BlockPos(0, AdAstraConfig.atmosphereLeave, 0))).pos().getCenter());
     }
 
     @Override
@@ -55,15 +92,29 @@ public class Satellite extends CelestialBody{
 
     @Override
     public void render(RenderLevelStageEvent event) {
-        event.getPoseStack().translate(getCoordinates(event.getPartialTick()).x-scale.x/2, getCoordinates(event.getPartialTick()).y-scale.y/2, getCoordinates(event.getPartialTick()).z-scale.z/2);
+        MultiBufferSource pBuffer = Minecraft.getInstance().renderBuffers().bufferSource();
+        event.getPoseStack().translate(getCoordinates(event.getPartialTick()).x, getCoordinates(event.getPartialTick()).y, getCoordinates(event.getPartialTick()).z);
+        if (Minecraft.getInstance().getEntityRenderDispatcher().shouldRenderHitBoxes()) {
+            LevelRenderer.renderLineBox(event.getPoseStack(), pBuffer.getBuffer(RenderType.LINES), boundingBox, 1, 1, 1, 1);
+        }
+        event.getPoseStack().translate(-scale.x / 2, -scale.y / 2, -scale.z / 2);
         event.getPoseStack().scale((float) scale.x, (float) scale.y, (float) scale.z);
         BakedModel model = Minecraft.getInstance().getModelManager().getModel(modelLoc);
 
-        MultiBufferSource pBuffer = RenderUtils.BUFFER;
-        VertexConsumer vertexConsumer = pBuffer
-                .getBuffer(RenderType.entityTranslucent(InventoryMenu.BLOCK_ATLAS));
+        VertexConsumer vertexConsumer = Minecraft.getInstance().renderBuffers().bufferSource()
+                .getBuffer(ImmersiveSpaceRenderTypes.celestialBodies(InventoryMenu.BLOCK_ATLAS));
         for (BakedQuad quad : model.getQuads(null, null, RandomSource.create(), ModelData.EMPTY, null)) {
             vertexConsumer.putBulkData(event.getPoseStack().last(), quad, 1, 1, 1, LevelRenderer.getLightColor(Minecraft.getInstance().level, new BlockPos((int) getCoordinates(event.getPartialTick()).x, (int) getCoordinates(event.getPartialTick()).y, (int) getCoordinates(event.getPartialTick()).z)), OverlayTexture.NO_OVERLAY);
         }
+    }
+
+    @Override
+    public Vec3 getExitPosition() {
+        return getCoordinates().add(0, scale.y + 10, 0);
+    }
+
+    @Override
+    public boolean isFromDimension(ResourceKey<Level> dim) {
+        return adAstraPlanet != null && dim == adAstraPlanet.get().dimension();
     }
 }

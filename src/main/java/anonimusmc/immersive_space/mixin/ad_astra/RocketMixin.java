@@ -1,6 +1,7 @@
 package anonimusmc.immersive_space.mixin.ad_astra;
 
 import anonimusmc.immersive_space.ImmersiveSpace;
+import anonimusmc.immersive_space.common.space.CelestialBody;
 import earth.terrarium.adastra.common.config.AdAstraConfig;
 import earth.terrarium.adastra.common.entities.vehicles.Rocket;
 import earth.terrarium.adastra.common.entities.vehicles.Vehicle;
@@ -41,7 +42,8 @@ public abstract class RocketMixin extends Entity {
     @Final
     private SimpleFluidContainer fluidContainer;
 
-    @Shadow public abstract FluidHolder fluid();
+    @Shadow
+    public abstract FluidHolder fluid();
 
     public RocketMixin(EntityType<?> type, Level level) {
         super(type, level);
@@ -77,13 +79,12 @@ public abstract class RocketMixin extends Entity {
                 }
                 setXRot(getXRot() + zAngle);
                 setYRot(getYRot() + angle);
-                this.setDeltaMovement(getViewVector(0).multiply(new Vec3(0.5, 0.5, 0.5)));
+                this.setDeltaMovement(getViewVector(0).multiply(new Vec3(0.5 * ImmersiveSpace.SPACE_SCALE, 0.5 * ImmersiveSpace.SPACE_SCALE, 0.5 * ImmersiveSpace.SPACE_SCALE)));
 
-                if (tickCount % 10 == 0)
+                if (tickCount % 40 == 0 && !((Player) getControllingPassenger()).isCreative())
                     this.fluidContainer.getFirstFluid().setAmount(this.fluidContainer.getFirstFluid().getFluidAmount() - (this.fluidContainer.getFirstFluid().is(ModFluidTags.EFFICIENT_FUEL) ? 1 : 3));
             }
-        }
-        if (!this.level().isClientSide() && this.getY() >= (double) AdAstraConfig.atmosphereLeave) {
+        } else if (!this.level().isClientSide() && this.getY() >= (double) AdAstraConfig.atmosphereLeave) {
             ci.cancel();
             LivingEntity var4 = this.getControllingPassenger();
             if (var4 instanceof ServerPlayer) {
@@ -111,8 +112,9 @@ public abstract class RocketMixin extends Entity {
             @Override
             public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
                 System.out.println("old dim: " + entity.level().dimension().location());
+                Vec3 position = CelestialBody.getExitableBodyFromDimension(entity.level().dimension()).getExitPosition();
                 Entity repositionedEntity = repositionEntity.apply(false);
-                repositionedEntity.teleportTo(0, 10, 0);
+                repositionedEntity.teleportTo(position.x, position.y, position.z);
                 repositionedEntity.setNoGravity(false);
                 return repositionedEntity;
             }

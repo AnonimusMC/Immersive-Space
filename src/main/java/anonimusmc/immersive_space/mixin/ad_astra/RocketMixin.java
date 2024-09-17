@@ -32,17 +32,17 @@ public abstract class RocketMixin extends Entity {
 
     private float zAngle;
 
-    @Shadow
+    @Shadow(remap = false)
     public abstract void explode();
 
-    @Shadow
+    @Shadow(remap = false)
     private float angle;
 
-    @Shadow
+    @Shadow(remap = false)
     @Final
     private SimpleFluidContainer fluidContainer;
 
-    @Shadow
+    @Shadow(remap = false)
     public abstract FluidHolder fluid();
 
     public RocketMixin(EntityType<?> type, Level level) {
@@ -79,7 +79,7 @@ public abstract class RocketMixin extends Entity {
                 }
                 setXRot(getXRot() + zAngle);
                 setYRot(getYRot() + angle);
-                this.setDeltaMovement(getViewVector(0).multiply(new Vec3(0.5 * ImmersiveSpace.SPACE_SCALE, 0.5 * ImmersiveSpace.SPACE_SCALE, 0.5 * ImmersiveSpace.SPACE_SCALE)));
+                this.setDeltaMovement(getViewVector(0).multiply(new Vec3(10,10,10)));
 
                 if (tickCount % 40 == 0 && !((Player) getControllingPassenger()).isCreative())
                     this.fluidContainer.getFirstFluid().setAmount(this.fluidContainer.getFirstFluid().getFluidAmount() - (this.fluidContainer.getFirstFluid().is(ModFluidTags.EFFICIENT_FUEL) ? 1 : 3));

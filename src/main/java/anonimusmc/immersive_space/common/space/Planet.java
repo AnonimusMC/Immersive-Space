@@ -61,7 +61,7 @@ public class Planet extends CelestialBody implements ExitableBody {
         this.offset = offset.multiply(ImmersiveSpace.SPACE_SCALE,ImmersiveSpace.SPACE_SCALE,ImmersiveSpace.SPACE_SCALE);
         this.coordinates = star.getCoordinates().add(this.offset);
         this.star = star;
-        this.angularSpeed = (float) (angularSpeed/Math.pow(ImmersiveSpace.SPACE_SCALE, 2));
+        this.angularSpeed = (float) (angularSpeed/(Math.pow(ImmersiveSpace.SPACE_SCALE, 2)));
         this.daySpeed = daySpeed/ImmersiveSpace.SPACE_SCALE;
         this.scale = scale.multiply(ImmersiveSpace.SPACE_SCALE,ImmersiveSpace.SPACE_SCALE,ImmersiveSpace.SPACE_SCALE);
         this.boundingBox = new AABB(-this.scale.x / 2, -this.scale.y / 2, -this.scale.z / 2, this.scale.x / 2, this.scale.y / 2, this.scale.z / 2);
@@ -70,7 +70,7 @@ public class Planet extends CelestialBody implements ExitableBody {
     @Override
     public void tick(TickEvent.LevelTickEvent event) {
         super.tick(event);
-        angle += 0.001F + this.angularSpeed / 2;
+        angle += 0.001F + this.angularSpeed / 1000;
         dayAngle += 0.001F + this.daySpeed;
         coordinatesO = coordinates;
         coordinates = star.getCoordinates().add(offset.yRot((float) Math.toRadians(angle)));

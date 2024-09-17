@@ -10,7 +10,6 @@
   ],
   "client":[
     "client.MixinGameRenderer",
-    "client.MixinOptions",
     "ad_astra.RocketRendererMixin"
   ],
   "injectors": {

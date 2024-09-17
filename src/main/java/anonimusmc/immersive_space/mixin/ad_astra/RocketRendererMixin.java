@@ -25,23 +25,20 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(RocketRenderer.class)
 public abstract class RocketRendererMixin {
 
-    @Shadow @Final protected EntityModel<Rocket> model;
+    @Shadow(remap = false) @Final protected EntityModel<Rocket> model;
 
-    @Shadow public abstract ResourceLocation getTextureLocation(Rocket entity);
+    @Shadow(remap = false) public abstract ResourceLocation getTextureLocation(Rocket entity);
 
     @Inject(method = "render(Learth/terrarium/adastra/common/entities/vehicles/Rocket;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", remap = false, at = @At(value = "INVOKE",
-            target = "Lcom/teamresourceful/resourcefullib/client/CloseablePoseStack;translate(FFF)V", shift = At.Shift.AFTER
-    ), cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    public void renderBegin(Rocket entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci, CloseablePoseStack pose) {
+            target = "Lcom/teamresourceful/resourcefullib/client/CloseablePoseStack;scale(FFF)V", shift = At.Shift.AFTER
+    ), cancellable = true)
+    public void renderBegin(Rocket entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
         if (Minecraft.getInstance().level.dimension() == ImmersiveSpace.SPACE) {
-            ci.cancel();
-            pose.mulPose(new Quaternionf().rotationY((float) Math.toRadians(180 - Mth.lerp(partialTick, entity.yRotO, entity.getYRot()))));
-            pose.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90 - Mth.lerp(partialTick, entity.xRotO, entity.getXRot()))));
+            poseStack.popPose();
+            poseStack.pushPose();
+            poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(180 - Mth.lerp(partialTick, entity.yRotO, entity.getYRot()))));
+            poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90 - Mth.lerp(partialTick, entity.xRotO, entity.getXRot()))));
 //            pose.scale(-1.0F, -1.0F, 1.0F);
-            this.model.setupAnim(entity, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
-            VertexConsumer consumer = buffer.getBuffer(this.model.renderType(this.getTextureLocation(entity)));
-            this.model.renderToBuffer(pose, consumer, packedLight, OverlayTexture.NO_OVERLAY, 1.0F, 1.0F, 1.0F, 1.0F);
-            pose.close();
         }
     }
 }

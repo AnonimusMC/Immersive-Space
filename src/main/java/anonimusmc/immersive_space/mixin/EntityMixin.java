@@ -25,7 +25,7 @@ public abstract class EntityMixin {
 
     @Shadow private Level level;
 
-    @Inject(method = "onBelowWorld", remap = false, at = @At(value = "HEAD"), cancellable = true)
+    @Inject(method = "onBelowWorld", at = @At(value = "HEAD"), cancellable = true)
     public void flightTick(CallbackInfo ci){
         if(this.level.dimension() == ImmersiveSpace.SPACE)
             ci.cancel();

@@ -30,15 +30,15 @@ public abstract class RocketRendererMixin {
     @Shadow(remap = false) public abstract ResourceLocation getTextureLocation(Rocket entity);
 
     @Inject(method = "render(Learth/terrarium/adastra/common/entities/vehicles/Rocket;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V", remap = false, at = @At(value = "INVOKE",
-            target = "Lcom/teamresourceful/resourcefullib/client/CloseablePoseStack;scale(FFF)V", shift = At.Shift.AFTER
-    ), cancellable = true)
+            remap = true, target = "Lcom/teamresourceful/resourcefullib/client/CloseablePoseStack;scale(FFF)V", shift = At.Shift.AFTER
+    ))
     public void renderBegin(Rocket entity, float entityYaw, float partialTick, PoseStack poseStack, MultiBufferSource buffer, int packedLight, CallbackInfo ci) {
         if (Minecraft.getInstance().level.dimension() == ImmersiveSpace.SPACE) {
             poseStack.popPose();
             poseStack.pushPose();
+            poseStack.translate(0.0F, 1.55F, 0.0F);
             poseStack.mulPose(new Quaternionf().rotationY((float) Math.toRadians(180 - Mth.lerp(partialTick, entity.yRotO, entity.getYRot()))));
             poseStack.mulPose(new Quaternionf().rotationX((float) Math.toRadians(90 - Mth.lerp(partialTick, entity.xRotO, entity.getXRot()))));
-//            pose.scale(-1.0F, -1.0F, 1.0F);
         }
     }
 }

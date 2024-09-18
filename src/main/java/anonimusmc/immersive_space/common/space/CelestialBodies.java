@@ -38,7 +38,7 @@ public class CelestialBodies {
         SATURN = CelestialBody.registerCelestialBody(new Planet(new ResourceLocation(ImmersiveSpace.MOD_ID, "saturn"), SUN, new Vec3(0, 0, 650+50), 0.00009294F, 0.01F, new Vec3(30, 30, 30)));
         URANUS = CelestialBody.registerCelestialBody(new Planet(new ResourceLocation(ImmersiveSpace.MOD_ID, "uranus"), SUN, new Vec3(0, 0, 800+50), 0.0000237F, 0.01F, new Vec3(30, 30, 30)));
         NEPTUNE = CelestialBody.registerCelestialBody(new Planet(new ResourceLocation(ImmersiveSpace.MOD_ID, "neptune"), SUN, new Vec3(0, 0, 950+50), 0.00001208F, 0.01F, new Vec3(30, 30, 30)));
-        PLUTO = CelestialBody.registerCelestialBody(new Planet(new ResourceLocation(ImmersiveSpace.MOD_ID, "pluto"), SUN, new Vec3(0, 0, 110+50), 0.000009F, 0.01F, new Vec3(07.5, 07.5, 07.5)));
+        PLUTO = CelestialBody.registerCelestialBody(new Planet(new ResourceLocation(ImmersiveSpace.MOD_ID, "pluto"), SUN, new Vec3(1500, 0, 110+50), 0.000009F, 0.01F, new Vec3(07.5, 07.5, 07.5), null, true, 10));
         CelestialBody.registerCelestialBody(new AsteroidsBelt(new ResourceLocation(ImmersiveSpace.MOD_ID, "kuiper_belt"),0.001F, 2500+50F, 10000, true));
     }
 

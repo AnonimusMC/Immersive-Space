@@ -3,8 +3,13 @@ package anonimusmc.immersive_space.common.space;
 import anonimusmc.immersive_space.ImmersiveSpace;
 import anonimusmc.immersive_space.client.ImmersiveSpaceRenderTypes;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import earth.terrarium.adastra.api.planets.PlanetApi;
 import earth.terrarium.adastra.common.config.AdAstraConfig;
+import earth.terrarium.adastra.common.container.VehicleContainer;
+import earth.terrarium.adastra.common.entities.vehicles.Lander;
+import earth.terrarium.adastra.common.entities.vehicles.Rocket;
 import earth.terrarium.adastra.common.handlers.LaunchingDimensionHandler;
+import earth.terrarium.adastra.common.registry.ModEntityTypes;
 import earth.terrarium.adastra.common.utils.ModUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -28,9 +33,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ModelEvent;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.client.model.data.ModelData;
+import net.minecraftforge.common.util.ITeleporter;
 import net.minecraftforge.event.TickEvent;
 
 import java.util.Random;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class Satellite extends CelestialBody implements ExitableBody {
@@ -67,7 +74,7 @@ public class Satellite extends CelestialBody implements ExitableBody {
     @Override
     public void tick(TickEvent.LevelTickEvent event) {
         super.tick(event);
-        angle += 0.01F + this.angularSpeed;
+        angle += 0.01F + this.angularSpeed / 50000;
         coordinatesO = coordinates;
         coordinates = planet.getCoordinates().add(offset.yRot((float) Math.toRadians(angle)));
         if (!event.level.isClientSide && planet != null) {
@@ -82,7 +89,47 @@ public class Satellite extends CelestialBody implements ExitableBody {
 
     public void moveToSatellite(ServerPlayer entity) {
         ServerLevel level = ((ServerLevel) entity.level()).getServer().getLevel(dim());
-        ModUtils.land(entity, level, LaunchingDimensionHandler.getSpawningLocation(entity, level, adAstraPlanet.get()).orElse(GlobalPos.of(dim(), new BlockPos(0, AdAstraConfig.atmosphereLeave, 0))).pos().getCenter());
+        if (PlanetApi.API.getPlanet(dim()) != null) {
+            Entity vehicle = entity.getVehicle();
+            if (vehicle != null) {
+                entity.stopRiding();
+                Entity repositionedEntity = entity.changeDimension(level, new ITeleporter() {
+
+
+                    @Override
+                    public boolean playTeleportSound(ServerPlayer player, ServerLevel sourceWorld, ServerLevel destWorld) {
+                        return false;
+                    }
+
+                    @Override
+                    public Entity placeEntity(Entity entity, ServerLevel currentWorld, ServerLevel destWorld, float yaw, Function<Boolean, Entity> repositionEntity) {
+                        Vec3 position = entity.position();
+                        Entity repositionedEntity = repositionEntity.apply(false);
+                        repositionedEntity.teleportTo(position.x, position.y, position.z);
+                        return repositionedEntity;
+                    }
+                });
+                if (vehicle != null && vehicle instanceof Rocket rocket) {
+                    Lander lander = new Lander(ModEntityTypes.LANDER.get(), level);
+
+                    if (lander != null) {
+                        level.addFreshEntity(lander);
+
+                        VehicleContainer rocketInventory = rocket.inventory();
+                        VehicleContainer landerInventory = lander.inventory();
+
+                        for(int i = 0; i < rocketInventory.getContainerSize(); ++i) {
+                            landerInventory.setItem(i + 1, rocketInventory.getItem(i));
+                        }
+
+                        landerInventory.setItem(0, rocket.getDropStack());
+                        rocket.discard();
+                        repositionedEntity.startRiding(lander);
+                    }
+                }
+            } else
+                ModUtils.teleportToDimension(entity, level).setPos(LaunchingDimensionHandler.getSpawningLocation(entity, level, adAstraPlanet.get()).orElse(GlobalPos.of(dim(), new BlockPos(0, AdAstraConfig.atmosphereLeave, 0))).pos().getCenter());
+        }
     }
 
     @Override

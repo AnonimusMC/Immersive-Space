@@ -21,14 +21,20 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 public abstract class LanderMixin extends Entity {
 
     @Shadow(remap = false) private float speed;
+    private boolean landed = false;
 
     public LanderMixin(EntityType<?> type, Level level) {
         super(type, level);
     }
 
     @WrapOperation(
-            method = "flightTick", remap = false, at = @At(value = "INVOKE", target = "Learth/terrarium/adastra/common/entities/vehicles/Lander;setDeltaMovement(DDD)V", ordinal = 0))
+            method = "flightTick", remap = false, at = @At(value = "INVOKE", remap = true, target = "Learth/terrarium/adastra/common/entities/vehicles/Lander;setDeltaMovement(DDD)V", ordinal = 0))
     public void flightTick(Lander instance, double deltaX, double deltaY, double deltaZ, Operation<Void> original){
-        original.call(instance, deltaX + getViewVector(0).x * ((Vehicle) (Object) this).zza()*0.05, deltaY, deltaZ + getViewVector(0).z * ((Vehicle) (Object) this).zza()*0.05);
+        if(instance.onGround() || instance.isInWater())
+            landed = true;
+        instance.setXRot(0);
+        if(!landed){
+            original.call(instance, deltaX + getViewVector(0).x * ((Vehicle) (Object) this).zza() * 0.05, deltaY, deltaZ + getViewVector(0).z * ((Vehicle) (Object) this).zza() * 0.05);
+        }
     }
 }

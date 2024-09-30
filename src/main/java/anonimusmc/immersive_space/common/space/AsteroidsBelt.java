@@ -36,15 +36,18 @@ public class AsteroidsBelt extends CelestialBody {
 
 
     public AsteroidsBelt(ResourceLocation registryName, float angularSpeed, float radius, int asteroids, boolean applyBeltWidthScale) {
+        this(registryName, angularSpeed, radius, asteroids, applyBeltWidthScale, new ResourceLocation(registryName.getNamespace(), "asteroid/asteroid1"), new ResourceLocation(registryName.getNamespace(), "asteroid/asteroid2"));
+    }
+
+    public AsteroidsBelt(ResourceLocation registryName, float angularSpeed, float radius, int asteroids, boolean applyBeltWidthScale, ResourceLocation modelLoc1, ResourceLocation modelLoc2) {
         super(registryName);
         this.angularSpeed = angularSpeed;
-        modelLoc1 = new ResourceLocation(registryName.getNamespace(), "asteroid/asteroid1");
-        modelLoc2 = new ResourceLocation(registryName.getNamespace(), "asteroid/asteroid2");
+        this.modelLoc1 = modelLoc1;
+        this.modelLoc2 = modelLoc2;
         this.radius = radius * ImmersiveSpace.SPACE_SCALE;
         this.asteroids = asteroids;
         this.applyBeltWidthScale = applyBeltWidthScale;
     }
-
 
     @Override
     public void tick(TickEvent.LevelTickEvent event) {

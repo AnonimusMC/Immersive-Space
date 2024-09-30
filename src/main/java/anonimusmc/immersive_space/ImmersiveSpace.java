@@ -1,17 +1,19 @@
 package anonimusmc.immersive_space;
 
 import anonimusmc.immersive_space.client.ShaderInstances;
+import anonimusmc.immersive_space.client.screen.LandingCoordinatesScreen;
 import anonimusmc.immersive_space.client.space.SpaceDimensionRenderInfo;
 import anonimusmc.immersive_space.common.space.CelestialBodies;
 import anonimusmc.immersive_space.common.space.CelestialBody;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.logging.LogUtils;
+import earth.terrarium.adastra.common.entities.vehicles.Rocket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.FogRenderer;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -26,6 +28,7 @@ import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -57,6 +60,7 @@ public class ImmersiveSpace {
             modEventBus.addListener(this::registerModel);
             modEventBus.addListener(this::registerShader);
             MinecraftForge.EVENT_BUS.addListener(this::renderLevelLast);
+            MinecraftForge.EVENT_BUS.addListener(this::entityInteraction);
         });
     }
 
@@ -73,7 +77,7 @@ public class ImmersiveSpace {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private void registerShader(final RegisterShadersEvent event)  {
+    private void registerShader(final RegisterShadersEvent event) {
         try {
             event.registerShader(new ShaderInstance(event.getResourceProvider(), new ResourceLocation(ImmersiveSpace.MOD_ID, "space"), DefaultVertexFormat.NEW_ENTITY), (shaderInstance) -> {
                 ShaderInstances.SPACE_SHADERS = shaderInstance;
@@ -87,6 +91,14 @@ public class ImmersiveSpace {
     @OnlyIn(Dist.CLIENT)
     private void registerDimensionSpecialEffect(final RegisterDimensionSpecialEffectsEvent event) {
         event.register(new ResourceLocation(MOD_ID, "space"), new SpaceDimensionRenderInfo());
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void entityInteraction(final PlayerInteractEvent.EntityInteract event) {
+        if(event.getTarget() instanceof Rocket && event.getEntity().isCrouching() && event.getEntity().level().isClientSide) {
+            event.setCanceled(true);
+            Minecraft.getInstance().setScreen(new LandingCoordinatesScreen(Component.empty(), (Rocket) event.getTarget()));
+        }
     }
 
     @OnlyIn(Dist.CLIENT)

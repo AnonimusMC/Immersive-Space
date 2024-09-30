@@ -24,7 +24,11 @@ public class CelestialBodies {
     public static Planet NEPTUNE;
     public static Planet PLUTO;
 
+    public static Star PROXIMA_CENTAURI;
+    public static Planet GLACIO;
+
     public static void registerBodies() {
+        //Solar System
         SUN = CelestialBody.registerCelestialBody(new Star(new ResourceLocation(ImmersiveSpace.MOD_ID, "sun"), new Vec3(0, 0, 0), new Vec3(100, 100, 100)));
         MERCURY = CelestialBody.registerCelestialBody(new Planet(new ResourceLocation(ImmersiveSpace.MOD_ID, "mercury"), SUN, new Vec3(0, 0, 120), 0.008264F, 0.01F, new Vec3(10, 10, 10)));
         VENUS = CelestialBody.registerCelestialBody(new Planet(new ResourceLocation(ImmersiveSpace.MOD_ID, "venus"), SUN, new Vec3(0, 0, 220), 0.003232F, -0.01F, new Vec3(20, 20, 20)));
@@ -40,6 +44,11 @@ public class CelestialBodies {
         NEPTUNE = CelestialBody.registerCelestialBody(new Planet(new ResourceLocation(ImmersiveSpace.MOD_ID, "neptune"), SUN, new Vec3(0, 0, 950+50), 0.00001208F, 0.01F, new Vec3(30, 30, 30)));
         PLUTO = CelestialBody.registerCelestialBody(new Planet(new ResourceLocation(ImmersiveSpace.MOD_ID, "pluto"), SUN, new Vec3(1500, 0, 110+50), 0.000009F, 0.01F, new Vec3(07.5, 07.5, 07.5), null, true, 10));
         CelestialBody.registerCelestialBody(new AsteroidsBelt(new ResourceLocation(ImmersiveSpace.MOD_ID, "kuiper_belt"),0.001F, 2500+50F, 10000, true));
+
+        //Proxima Centauri System
+//        PROXIMA_CENTAURI = CelestialBody.registerCelestialBody(new Star(new ResourceLocation(ImmersiveSpace.MOD_ID, "proxima_centauri"), new Vec3(0, 0, 0), new Vec3(100, 100, 100)));
+//        GLACIO = CelestialBody.registerCelestialBody(new Planet(new ResourceLocation(ImmersiveSpace.MOD_ID, "glacio"), PROXIMA_CENTAURI, new Vec3(0, 0, 500+50), 0.0001673F, 0.01F, new Vec3(40, 40, 40)));
+
     }
 
 }
